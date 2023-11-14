@@ -1,24 +1,44 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { setSort } from '../redux/slices/filterSlice'
 
-function Sort({ value, onClickSort }) {
+const Sort = () => {
+  const dispatch = useDispatch()
+  const sort = useSelector((state) => state.filter.sort)
   const [isOpen, setIsOpen] = useState(false)
+  const sortRef = useRef()
 
-  const sortList = [
-    { name: 'популярности (desc)', sortProperty: 'rating' },
-    { name: 'популярности (asc)', sortProperty: '-rating' },
-    { name: 'цене (desc)', sortProperty: 'price' },
-    { name: 'цене (asc)', sortProperty: '-price' },
-    { name: 'алфавиту (desc)', sortProperty: 'title' },
-    { name: 'алфавиту (asc)', sortProperty: '-title' },
+  const sortArr = [
+    { name: 'популярности (убыв.)', sortProperty: 'rating' },
+    { name: 'популярности (возр.)', sortProperty: '-rating' },
+    { name: 'цене (убыв.)', sortProperty: 'price' },
+    { name: 'цене (возр.)', sortProperty: '-price' },
+    { name: 'алфавиту (убыв.)', sortProperty: 'title' },
+    { name: 'алфавиту (возр.)', sortProperty: '-title' },
   ]
 
-  const onClickListItem = (index) => {
-    onClickSort(index)
+  const onClickPopup = (obj) => {
+    dispatch(setSort(obj))
     setIsOpen(false)
   }
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.composedPath().includes(sortRef.current)) {
+        setIsOpen(false)
+        console.log('clicked')
+      }
+    }
+    document.body.addEventListener('click', handleClickOutside)
+
+    return () => {
+      document.body.removeEventListener('click', handleClickOutside)
+      // return внутри useffect значит unmount
+    }
+  }, [])
+
   return (
-    <div className="sort">
+    <div ref={sortRef} className="sort">
       <div className="sort__label">
         <svg
           width="10"
@@ -31,17 +51,17 @@ function Sort({ value, onClickSort }) {
             fill="#2C2C2C"
           />
         </svg>
-        <b>Сортировка по:</b>
-        <span onClick={() => setIsOpen(!isOpen)}>{value.name}</span>
+        <b onClick={() => onClickPopup()}>Сортировка по:</b>
+        <span onClick={() => setIsOpen(!isOpen)}>{sort.name}</span>
       </div>
       {isOpen && (
         <div className="sort__popup">
           <ul>
-            {sortList.map((obj, index) => (
+            {sortArr.map((obj, index) => (
               <li
                 key={index}
-                onClick={() => onClickListItem(obj)}
-                className={value.sortProperty === obj.sortProperty ? 'active' : ''}>
+                className={sort === obj.sortProperty ? 'active' : ''}
+                onClick={() => onClickPopup(obj)}>
                 {obj.name}
               </li>
             ))}

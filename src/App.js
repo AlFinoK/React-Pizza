@@ -1,4 +1,3 @@
-import React, { createContext, useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 
 import Header from './components/Header'
@@ -6,15 +5,16 @@ import Home from './pages/Home'
 import Cart from './pages/Cart'
 import NotFound from './pages/NotFound'
 import './scss/app.scss'
+import { createContext, useState } from 'react'
 
 export const SearchContext = createContext()
 
 function App() {
-  const [searchVal, setSearchVal] = useState('')
+  const [searchValue, setSearchValue] = useState('')
 
   return (
     <div className="wrapper">
-      <SearchContext.Provider value={{ searchVal, setSearchVal }}>
+      <SearchContext.Provider value={{ searchValue, setSearchValue }}>
         <Header />
         <div className="content">
           <Routes>

@@ -3,11 +3,10 @@
 
 @import './components/all';
 
-
-
 body {
   background-color: $background;
 }
+
 .wrapper {
   width: calc(100vw - 100px);
   height: 100%;
@@ -229,6 +228,9 @@ body {
 
       span {
         font-size: 22px;
+        transition: all 0.3s;
+        font-weight: normal;
+        display: inline-block;
 
         &:last-of-type {
           b {
