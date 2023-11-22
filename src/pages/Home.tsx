@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { FC, useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import qs from 'qs'
@@ -11,7 +11,7 @@ import SkeletonLoader from '../components/PizzaBlock/SkeletonLoader'
 import { fetchPizzas } from '../redux/slices/pizzasSlice'
 import { setCategoryId, setCurrentPage, setFilters } from '../redux/slices/filterSlice'
 
-const Home = () => {
+const Home: FC = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const isMounted = useRef(false)
@@ -39,6 +39,7 @@ const Home = () => {
     const search = searchValue ? `search=${searchValue}` : ''
 
     dispatch(
+      // @ts-ignore
       fetchPizzas({
         sortBy,
         order,

@@ -1,8 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
+import { FC, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setSort } from '../redux/slices/filterSlice'
 
-export const sortList = [
+type typeSortItem = {
+  name: string
+  sortProperty: string
+}
+
+export const sortList: typeSortItem[] = [
   { name: 'популярности (убыв.)', sortProperty: 'rating' },
   { name: 'популярности (возр.)', sortProperty: '-rating' },
   { name: 'цене (убыв.)', sortProperty: 'price' },
@@ -11,19 +16,19 @@ export const sortList = [
   { name: 'алфавиту (возр.)', sortProperty: '-title' },
 ]
 
-const Sort = () => {
+const Sort: FC = () => {
   const dispatch = useDispatch()
   const sort = useSelector((state) => state.filter.sort)
+  const sortRef = useRef<HTMLDivElement>(null)
   const [isOpen, setIsOpen] = useState(false)
-  const sortRef = useRef()
 
-  const onClickPopup = (obj) => {
+  const onClickPopup = (obj: typeSortItem) => {
     dispatch(setSort(obj))
     setIsOpen(false)
   }
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: any) => {
       if (!event.composedPath().includes(sortRef.current)) {
         setIsOpen(false)
       }
@@ -39,7 +44,7 @@ const Sort = () => {
   return (
     <div ref={sortRef} className="sort">
       <div className="sort__label">
-        <b onClick={() => onClickPopup()}>Сортировка по:</b>
+        <b>Сортировка по:</b>
         <span onClick={() => setIsOpen(!isOpen)}>{sort.name}</span>
       </div>
       {isOpen && (
