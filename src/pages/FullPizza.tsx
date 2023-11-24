@@ -4,13 +4,13 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 const FullPizza: FC = () => {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [pizza, setPizza] = useState<{
     imageUrl: string
     title: string
     description: string
     price: number
   }>()
-  const navigate = useNavigate()
 
   useEffect(() => {
     async function getPizzas() {

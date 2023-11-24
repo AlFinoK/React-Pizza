@@ -10,28 +10,27 @@ import Sort, { sortList } from '../components/Sort'
 import SkeletonLoader from '../components/PizzaBlock/SkeletonLoader'
 import { fetchPizzas } from '../redux/slices/pizzasSlice'
 import { setCategoryId, setCurrentPage, setFilters } from '../redux/slices/filterSlice'
+import { current } from '@reduxjs/toolkit'
 
 const Home: FC = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const isMounted = useRef(false)
-  const isSearch = useRef(false)
+  // const isSearch = useRef(false)
   const { items, status } = useSelector((state) => state.pizzas)
   const { categoryId, sort, currentPage, searchValue } = useSelector((state) => state.filter)
-  const [isLoading, setIsLoading] = useState(true)
-  const pizzas = items.map((obj, id) => <PizzaBlock key={id} {...obj} />)
-  const skeletons = [...new Array(12)].map((_, index) => <SkeletonLoader key={index} />)
+  // const [isLoading, setIsLoading] = useState(true)
 
-  const onChangeCategory = useCallback((id) => {
-    dispatch(setCategoryId(id))
+  const onChangeCategory = useCallback((index: number) => {
+    dispatch(setCategoryId(index))
   }, [])
 
-  const onChangePage = useCallback((page) => {
+  const onChangePage = useCallback((page: number) => {
     dispatch(setCurrentPage(page))
   }, [])
 
   const getPizzas = async () => {
-    setIsLoading(true)
+    // setIsLoading(true)
 
     const sortBy = sort.sortProperty.replace('-', '')
     const order = sort.sortProperty.includes('-') ? 'asc' : 'desc'
@@ -48,44 +47,27 @@ const Home: FC = () => {
         currentPage,
       }),
     )
+    window.scrollTo(0, 0)
   }
 
-  // Если изменили параметры и был первый рендер
   useEffect(() => {
     if (isMounted.current) {
-      const queryString = qs.stringify({
+      const params = {
+        categoryId: categoryId > 0 ? categoryId : null,
         sortProperty: sort.sortProperty,
-        categoryId,
         currentPage,
-      })
-
-      navigate(`?${queryString}`)
+      }
+      const queryString = qs.stringify(params, { skipNulls: true })
+      navigate(`/?${queryString}`)
     }
-    isMounted.current = true
-  }, [categoryId, sort.sortProperty, currentPage])
-
-  useEffect(() => {
-    if (isMounted.current) {
-      const queryString = qs.stringify({
-        sortProperty: sort.sortProperty,
-        categoryId,
-        currentPage,
-      })
-
-      navigate(`?${queryString}`)
+    if (!window.location.search) {
+      fetchPizzas()
     }
-    isMounted.current = true
-  }, [categoryId, sort.sortProperty, currentPage])
+  }, [categoryId, sort.sortProperty, searchValue, currentPage])
 
   // Если был первый рендер, то запрашиваем пиццы
   useEffect(() => {
-    window.scrollTo(0, 0)
-
-    if (!isSearch.current) {
-      getPizzas()
-    }
-
-    isSearch.current = false
+    getPizzas()
   }, [categoryId, sort.sortProperty, searchValue, currentPage])
 
   // Если был первый рендер, то проверяем URl-параметры и сохраняем в редуксе
@@ -93,22 +75,27 @@ const Home: FC = () => {
     if (window.location.search) {
       const params = qs.parse(window.location.search.substring(1))
 
-      const sort = sortList.find((obj) => obj.sortProperty === params.sortProperty)
+      const sort = sortList.find((obj) => obj.sortProperty === params.sortBy)
       dispatch(
         setFilters({
-          ...params,
-          sort,
+          searchValue: params.search,
+          categoryId: Number(params.category),
+          currentPage: Number(params.currentPage),
+          sort: sort || sortList[0],
         }),
       )
-      isSearch.current = true
     }
+    isMounted.current = true
   }, [])
+
+  const pizzas = items.map((obj) => <PizzaBlock key={obj.id} {...obj} />)
+  const skeletons = [...new Array(12)].map((_, index) => <SkeletonLoader key={index} />)
 
   return (
     <div className="container">
       <div className="content__top">
         <Categories value={categoryId} onChangeCategory={onChangeCategory} />
-        <Sort value={sort} />
+        <Sort />
       </div>
       <h2 className="content__title">Все пиццы</h2>
 
@@ -144,18 +131,3 @@ export default Home
 //   ),
 //     window.scrollTo(0, 0)
 // }
-
-// useEffect(() => {
-//   if (isMounted.current) {
-//     const params = {
-//       categoryId: categoryId > 0 ? categoryId : null,
-//       sortProperty: sort.sortProperty,
-//       currentPage,
-//     }
-//     const queryString = qs.stringify(params, { skipNulls: true })
-//     navigate(`?${queryString}`)
-//   }
-//   if (!window.location.search) {
-//     // requestPizzas()
-//   }
-// }, [categoryId, sort, searchValue, currentPage, requestPizzas])
